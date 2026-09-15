@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient bg-primary text-white py-5 mb-5 rounded-3 shadow-sm text-center">
+  <div class="container py-2">
+    <h1 class="display-4 fw-bold">Кулінарна Книга Recipe Hub 🍳</h1>
+    <p class="lead mb-4 fs-5 opacity-90">Зберігайте, діліться та знаходьте найкращі рецепти в одному місці</p>
+    {% if user.is_authenticated %}
+      <a href="{% url 'recipe_add' %}" class="btn btn-light btn-lg px-4 fw-semibold shadow-sm">+ Додати свій рецепт</a>
+    {% else %}
+      <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-4 fw-semibold shadow-sm">Приєднатися до спільноти</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container mb-5">
+  <!-- Пошук та Категорії -->
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-12 col-md-6">
+      <input type="text" name="q" class="form-control form-control-lg" placeholder="🔍 Пошук рецепта за назвою..." value="{{ request.GET.q }}">
+    </div>
+    <div class="col-12 col-md-4">
+      <select name="category" class="form-select form-select-lg">
+        <option value="">Всі категорії</option>
+        <option value="breakfast" {% if request.GET.category == 'breakfast' %}selected{% endif %}>🍳 Сніданки</option>
+        <option value="lunch" {% if request.GET.category == 'lunch' %}selected{% endif %}>🍲 Обіди</option>
+        <option value="dinner" {% if request.GET.category == 'dinner' %}selected{% endif %}>🍝 Вечері</option>
+        <option value="dessert" {% if request.GET.category == 'dessert' %}selected{% endif %}>🍰 Десерти</option>
+        <option value="drinks" {% if request.GET.category == 'drinks' %}selected{% endif %}>🍹 Напої</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-2">
+      <button type="submit" class="btn btn-primary btn-lg w-100">Шукати</button>
+    </div>
+  </form>
+
+  <div class="row g-4">
+    {% for recipe in recipes %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm recipe-card">
+          <div class="position-relative overflow-hidden rounded-top" style="height: 220px;">
+            {% if recipe.image %}
+              <img src="{{ recipe.image.url }}" class="card-img-top w-100 h-100 object-fit-cover" alt="{{ recipe.title }}">
+            {% else %}
+              <div class="w-100 h-100 bg-light d-flex align-items-center justify-content-center text-muted">
+                📷 Немає фото
+              </div>
+            {% endif %}
+            <span class="badge bg-dark bg-opacity-75 position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">
+              ⏱ {{ recipe.cooking_time }} хв
+            </span>
+          </div>
+
+          <div class="card-body d-flex flex-column p-4">
+            <span class="badge bg-primary bg-opacity-10 text-primary w-auto align-self-start mb-2 px-2 py-1 rounded">
+              {{ recipe.get_category_display }}
+            </span>
+            <h5 class="card-title fw-bold text-dark mb-2">{{ recipe.title }}</h5>
+            <p class="card-text text-secondary small flex-grow-1">{{ recipe.description|truncatewords:14 }}</p>
+            
+            <hr class="my-3 opacity-10">
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">❤️ {{ recipe.total_likes }} | 👤 {{ recipe.author.username }}</span>
+              <a href="{{ recipe.get_absolute_url }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">Переглянути</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5">
+        <div class="p-5 bg-light rounded-3">
+          <p class="text-muted fs-5 mb-0">Рецептів за вашим запитом не знайдено.</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Пагінація -->
+  {% if is_paginated %}
+    <nav class="mt-5">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперед</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+
+<style>
+  .recipe-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .recipe-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12) !important;
+  }
+</style>
+{% endblock %}
