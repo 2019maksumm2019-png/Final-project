@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
+from django.db import models
 
 from .models import Recipe, Comment
 from .forms import RecipeForm
@@ -17,11 +18,19 @@ class RecipeListView(ListView):
         queryset = super().get_queryset()
         query = self.request.GET.get('q')
         category = self.request.GET.get('category')
+        sort = self.request.GET.get('sort')
 
         if query:
             queryset = queryset.filter(title__icontains=query)
         if category:
             queryset = queryset.filter(category=category)
+
+        if sort == 'time_asc':
+            queryset = queryset.order_by('cooking_time')
+        elif sort == 'likes_desc':
+            queryset = queryset.annotate(likes_count=models.Count('likes')).order_by('-likes_count')
+        else:
+            queryset = queryset.order_by('-created_at')
 
         return queryset
 

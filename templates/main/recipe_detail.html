@@ -4,10 +4,10 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <a href="{% url 'recipe_list' %}" class="btn btn-link text-decoration-none text-muted ps-0">
-      ← Назад до всіх рецептів
+      <i class="bi bi-arrow-left me-1"></i> Назад до всіх рецептів
     </a>
-    <button onclick="window.print()" class="btn btn-outline-dark btn-sm rounded-pill">
-      🖨 Друк рецепта
+    <button onclick="window.print()" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+      <i class="bi bi-printer me-1"></i> Друк рецепта
     </button>
   </div>
 
@@ -21,64 +21,82 @@
         <div class="card-body p-4 p-md-5">
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <h1 class="fw-bold mb-0 text-dark">{{ recipe.title }}</h1>
-            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fs-6">
-              ⏱ Час приготування: {{ recipe.cooking_time }} хв
-            </span>
+            <div class="d-flex gap-2">
+              <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-clock me-1"></i> {{ recipe.cooking_time }} хв
+              </span>
+              <span class="badge bg-secondary bg-opacity-10 text-dark px-3 py-2 rounded-pill fs-6">
+                <i class="bi bi-bar-chart-line me-1"></i> {{ recipe.get_difficulty_display }}
+              </span>
+            </div>
           </div>
 
           <div class="d-flex align-items-center justify-content-between text-muted mb-4 small border-bottom pb-3">
             <div>
-              <span>Автор: <strong>{{ recipe.author.username }}</strong></span>
+              <span><i class="bi bi-person me-1"></i> {{ recipe.author.username }}</span>
               <span class="mx-2">•</span>
-              <span>Опубліковано: {{ recipe.created_at|date:"d.m.Y" }}</span>
+              <span><i class="bi bi-calendar-event me-1"></i> {{ recipe.created_at|date:"d.m.Y" }}</span>
             </div>
             
             {% if user == recipe.author %}
               <div>
-                <a href="{% url 'recipe_edit' recipe.pk %}" class="btn btn-sm btn-outline-warning me-1">Редагувати</a>
-                <a href="{% url 'recipe_delete' recipe.pk %}" class="btn btn-sm btn-outline-danger">Видалити</a>
+                <a href="{% url 'recipe_edit' recipe.pk %}" class="btn btn-sm btn-outline-warning me-1">
+                  <i class="bi bi-pencil me-1"></i> Редагувати
+                </a>
+                <a href="{% url 'recipe_delete' recipe.pk %}" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash me-1"></i> Видалити
+                </a>
               </div>
             {% endif %}
           </div>
 
-          <!-- Лайки -->
           <div class="mb-4">
             <form method="post" action="{% url 'recipe_like' recipe.pk %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-outline-danger rounded-pill">
-                ❤️ Вподобати ({{ recipe.total_likes }})
+              <button type="submit" class="btn btn-outline-danger rounded-pill px-4">
+                <i class="bi bi-heart-fill me-1"></i> Вподобати ({{ recipe.total_likes }})
               </button>
             </form>
           </div>
 
           <p class="lead text-secondary mb-4">{{ recipe.description }}</p>
 
-          <div class="row g-4 mb-4">
-            <div class="col-12 col-md-5">
-              <div class="p-4 bg-light rounded-3 h-100">
-                <h4 class="fw-bold text-dark mb-3">🛒 Інгредієнти</h4>
-                <div class="lh-lg text-secondary" style="white-space: pre-line;">{{ recipe.ingredients }}</div>
-              </div>
-            </div>
+          <div class="p-4 bg-light rounded-4 mb-5">
+            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-basket text-primary me-2"></i>Інгредієнти</h4>
+            <div class="lh-lg text-secondary" style="white-space: pre-line;">{{ recipe.ingredients }}</div>
+          </div>
 
-            <div class="col-12 col-md-7">
-              <div class="p-4 bg-white border rounded-3 h-100">
-                <h4 class="fw-bold text-dark mb-3">👨‍🍳 Інструкція приготування</h4>
-                <div class="lh-lg text-secondary" style="white-space: pre-line;">{{ recipe.instructions }}</div>
+          <h3 class="fw-bold text-dark mb-4"><i class="bi bi-list-check text-success me-2"></i>Покрокове приготування</h3>
+          
+          <div class="d-flex flex-column gap-4 mb-5">
+            {% for step in recipe.steps.all %}
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden p-3 bg-light">
+                <div class="row g-3 align-items-center">
+                  {% if step.image %}
+                    <div class="col-12 col-md-4">
+                      <img src="{{ step.image.url }}" class="img-fluid rounded-3 w-100 object-fit-cover" style="max-height: 200px;" alt="Крок {{ step.step_number }}">
+                    </div>
+                  {% endif %}
+                  <div class="col-12 {% if step.image %}col-md-8{% else %}col-12{% endif %}">
+                    <span class="badge bg-primary rounded-pill mb-2">Крок {{ step.step_number }}</span>
+                    <p class="mb-0 text-dark fs-6">{{ step.description }}</p>
+                  </div>
+                </div>
               </div>
-            </div>
+            {% empty %}
+              <p class="text-muted">Покрокова інструкція заповнюється адміністратором/автором через адмін-панель.</p>
+            {% endfor %}
           </div>
 
           <hr class="my-4">
 
-          <!-- Блок Коментарів -->
-          <h4 class="fw-bold text-dark mb-3">💬 Коментарі ({{ recipe.comments.count }})</h4>
+          <h4 class="fw-bold text-dark mb-3"><i class="bi bi-chat-left-text text-info me-2"></i>Коментарі ({{ recipe.comments.count }})</h4>
 
           {% if user.is_authenticated %}
             <form method="post" class="mb-4">
               {% csrf_token %}
               <div class="mb-2">
-                <textarea name="comment_text" class="form-control" rows="3" placeholder="Залиште свій коментар..." required></textarea>
+                <textarea name="comment_text" class="form-control rounded-3" rows="3" placeholder="Залиште свій коментар..." required></textarea>
               </div>
               <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4">Надіслати</button>
             </form>
@@ -90,7 +108,7 @@
             {% for comment in recipe.comments.all %}
               <div class="p-3 bg-light rounded-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <strong>{{ comment.author.username }}</strong>
+                  <strong><i class="bi bi-person-circle me-1"></i>{{ comment.author.username }}</strong>
                   <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
                 </div>
                 <p class="mb-0 text-secondary">{{ comment.text }}</p>

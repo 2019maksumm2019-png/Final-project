@@ -1,26 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="bg-gradient bg-primary text-white py-5 mb-5 rounded-3 shadow-sm text-center">
-  <div class="container py-2">
-    <h1 class="display-4 fw-bold">Кулінарна Книга Recipe Hub 🍳</h1>
-    <p class="lead mb-4 fs-5 opacity-90">Зберігайте, діліться та знаходьте найкращі рецепти в одному місці</p>
+<div class="bg-primary bg-gradient text-white py-5 mb-5 rounded-4 shadow text-center position-relative overflow-hidden">
+  <div class="container py-3">
+    <h1 class="display-4 fw-bold mb-3">
+      <i class="bi bi-journal-richtext me-2"></i>Світ Смачних Рецептів
+    </h1>
+    <p class="lead mb-4 opacity-90 fs-5">Зберігайте, діліться та відкривайте для себе нові кулінарні шедеври</p>
     {% if user.is_authenticated %}
-      <a href="{% url 'recipe_add' %}" class="btn btn-light btn-lg px-4 fw-semibold shadow-sm">+ Додати свій рецепт</a>
+      <a href="{% url 'recipe_add' %}" class="btn btn-light btn-lg px-4 rounded-pill fw-bold shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Створити свій рецепт
+      </a>
     {% else %}
-      <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-4 fw-semibold shadow-sm">Приєднатися до спільноти</a>
+      <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-4 rounded-pill fw-bold shadow-sm">
+        <i class="bi bi-stars me-1"></i> Приєднатися до спільноти
+      </a>
     {% endif %}
   </div>
 </div>
 
 <div class="container mb-5">
-  <!-- Пошук та Категорії -->
   <form method="get" class="row g-2 mb-4">
-    <div class="col-12 col-md-6">
-      <input type="text" name="q" class="form-control form-control-lg" placeholder="🔍 Пошук рецепта за назвою..." value="{{ request.GET.q }}">
+    <div class="col-12 col-md-5">
+      <div class="input-group input-group-lg">
+        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" class="form-control border-start-0" placeholder="Пошук рецепта..." value="{{ request.GET.q }}">
+      </div>
     </div>
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-md-3">
       <select name="category" class="form-select form-select-lg">
         <option value="">Всі категорії</option>
         <option value="breakfast" {% if request.GET.category == 'breakfast' %}selected{% endif %}>🍳 Сніданки</option>
@@ -30,54 +37,71 @@
         <option value="drinks" {% if request.GET.category == 'drinks' %}selected{% endif %}>🍹 Напої</option>
       </select>
     </div>
-    <div class="col-12 col-md-2">
-      <button type="submit" class="btn btn-primary btn-lg w-100">Шукати</button>
+    <div class="col-12 col-md-3">
+      <select name="sort" class="form-select form-select-lg">
+        <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>⏱ Спочатку нові</option>
+        <option value="time_asc" {% if request.GET.sort == 'time_asc' %}selected{% endif %}>⚡ Швидкі в приготуванні</option>
+        <option value="likes_desc" {% if request.GET.sort == 'likes_desc' %}selected{% endif %}>❤️ Найпопулярніші</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-1">
+      <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-funnel"></i></button>
     </div>
   </form>
 
   <div class="row g-4">
     {% for recipe in recipes %}
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 border-0 shadow-sm recipe-card">
-          <div class="position-relative overflow-hidden rounded-top" style="height: 220px;">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden recipe-card">
+          <div class="position-relative" style="height: 220px;">
             {% if recipe.image %}
               <img src="{{ recipe.image.url }}" class="card-img-top w-100 h-100 object-fit-cover" alt="{{ recipe.title }}">
             {% else %}
-              <div class="w-100 h-100 bg-light d-flex align-items-center justify-content-center text-muted">
-                📷 Немає фото
+              <div class="w-100 h-100 bg-light d-flex align-items-center justify-content-center text-muted fs-1">
+                <i class="bi bi-camera"></i>
               </div>
             {% endif %}
             <span class="badge bg-dark bg-opacity-75 position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">
-              ⏱ {{ recipe.cooking_time }} хв
+              <i class="bi bi-clock me-1"></i>{{ recipe.cooking_time }} хв
             </span>
           </div>
 
           <div class="card-body d-flex flex-column p-4">
-            <span class="badge bg-primary bg-opacity-10 text-primary w-auto align-self-start mb-2 px-2 py-1 rounded">
-              {{ recipe.get_category_display }}
-            </span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-pill">
+                {{ recipe.get_category_display }}
+              </span>
+              <span class="badge bg-secondary bg-opacity-10 text-dark px-2 py-1 rounded-pill">
+                <i class="bi bi-bar-chart-line me-1"></i>{{ recipe.get_difficulty_display }}
+              </span>
+            </div>
+
             <h5 class="card-title fw-bold text-dark mb-2">{{ recipe.title }}</h5>
             <p class="card-text text-secondary small flex-grow-1">{{ recipe.description|truncatewords:14 }}</p>
             
             <hr class="my-3 opacity-10">
             
             <div class="d-flex justify-content-between align-items-center">
-              <span class="text-muted small">❤️ {{ recipe.total_likes }} | 👤 {{ recipe.author.username }}</span>
-              <a href="{{ recipe.get_absolute_url }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">Переглянути</a>
+              <span class="text-muted small">
+                <i class="bi bi-heart-fill text-danger me-1"></i>{{ recipe.total_likes }} | <i class="bi bi-person me-1"></i>{{ recipe.author.username }}
+              </span>
+              <a href="{{ recipe.get_absolute_url }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+                Детальніше <i class="bi bi-arrow-right ms-1"></i>
+              </a>
             </div>
           </div>
         </div>
       </div>
     {% empty %}
       <div class="col-12 text-center py-5">
-        <div class="p-5 bg-light rounded-3">
+        <div class="p-5 bg-light rounded-4">
+          <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
           <p class="text-muted fs-5 mb-0">Рецептів за вашим запитом не знайдено.</p>
         </div>
       </div>
     {% endfor %}
   </div>
 
-  <!-- Пагінація -->
   {% if is_paginated %}
     <nav class="mt-5">
       <ul class="pagination justify-content-center">
