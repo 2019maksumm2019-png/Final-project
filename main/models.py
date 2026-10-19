@@ -83,7 +83,7 @@ class RecipeStep(models.Model):
         ordering = ['step_number']
 
     def __str__(self):
-        return f"{self.recipe.title} - Крок {self.step_number}"
+        return f"{self.recipe.title} — Крок {self.step_number}"
 
 
 class Comment(models.Model):
@@ -98,4 +98,4 @@ class Comment(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.author.username} - {self.recipe.title}'
+        return f'{self.author.username} — {self.recipe.title}'

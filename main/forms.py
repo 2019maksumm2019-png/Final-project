@@ -7,7 +7,7 @@ class RecipeForm(forms.ModelForm):
         fields = ['title', 'category', 'difficulty', 'description', 'ingredients', 'cooking_time', 'image']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Коротко розкажіть про страву...'}),
-            'ingredients': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Наприклад:\n- Борошно 200г\n- Яйця 2шт'}),
+            'ingredients': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Наприклад:\nБорошно 200г\nЯйця 2шт'}),
         }
 
     def __init__(self, *args, **kwargs):
