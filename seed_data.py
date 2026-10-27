@@ -53,7 +53,7 @@ def seed_database():
             "category": "breakfast",
             "difficulty": "easy",
             "cooking_time": 15,
-            "image_url": "https://images.unsplash.com/photo-1517673132405-a56a62b18caf",
+            "image_url": "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666",
             "ingredients": "Вівсяні пластівці - 1 склянка\nМолоко - 2 склянки\nЯблуко - 1 шт\nЦукор/мед - 1 ст.л.\nКориця - дрібка",
             "steps": ["Залити вівсянку молоком і варити 7-10 хвилин.", "Нарізати яблуко кубиками та обсмажити з цукром і корицею.", "Викласти карамелізовані яблука зверху на кашу."]
         },
@@ -223,7 +223,7 @@ def seed_database():
             "category": "lunch",
             "difficulty": "medium",
             "cooking_time": 30,
-            "image_url": "https://images.unsplash.com/photo-1551183053-bf91a1d81141",
+            "image_url": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8",
             "ingredients": "Спагеті - 250г\nМ'ясний фарш - 300г\nТомати у власному соку - 200г\nЦибуля, часник",
             "steps": ["Обсмажити фарш із цибулею та часником.", "Додати томати та тушкувати соус 15 хвилин.", "Змішати з відвареними спагеті."]
         },

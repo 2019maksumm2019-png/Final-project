@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.db import models
 
-from .models import Recipe, Comment
+from .models import Recipe, Comment, RecipeStep
 from .forms import RecipeForm
 
 class RecipeListView(ListView):
@@ -53,7 +53,29 @@ class RecipeDetailView(DetailView):
         return redirect('recipe_detail', pk=recipe.pk)
 
 
-class RecipeCreateView(LoginRequiredMixin, CreateView):
+class RecipeCreateUpdateMixin:
+    """Міксин для автоматичного розбиття тексту кроків та збереження їх у RecipeStep"""
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # При редагуванні спочатку очищаємо старі кроки, щоб записувати оновлені
+        self.object.steps.all().delete()
+        
+        steps_text = form.cleaned_data.get('steps_text', '')
+        if steps_text:
+            lines = steps_text.split('\n')
+            for index, line in enumerate(lines, start=1):
+                cleaned_line = line.strip()
+                if cleaned_line:
+                    RecipeStep.objects.create(
+                        recipe=self.object,
+                        step_number=index,
+                        description=cleaned_line
+                    )
+        return response
+
+
+class RecipeCreateView(LoginRequiredMixin, RecipeCreateUpdateMixin, CreateView):
     model = Recipe
     form_class = RecipeForm
     template_name = 'main/recipe_form.html'
@@ -64,7 +86,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class RecipeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class RecipeUpdateView(LoginRequiredMixin, UserPassesTestMixin, RecipeCreateUpdateMixin, UpdateView):
     model = Recipe
     form_class = RecipeForm
     template_name = 'main/recipe_form.html'
