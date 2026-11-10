@@ -83,16 +83,16 @@ DATABASES = {
     )
 }
 
-if not DEBUG and DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
+if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
     DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
-    DATABASES["default"]["OPTIONS"].update(
+    DATABASES["default"].setdefault("OPTIONS", {}).update(
         sslmode="require",
         prepare_threshold=None,
     )
 
     if os.getenv("VERCEL"):
         DATABASES["default"]["CONN_MAX_AGE"] = 0
-
+        
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
